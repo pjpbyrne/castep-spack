@@ -1,0 +1,20 @@
+From 2e414b2bc8d10b3354449693d2d48e4f422fbed8 Mon Sep 17 00:00:00 2001
+From: Peter Byrne <peter.byrne@york.ac.uk>
+Date: Wed, 11 Mar 2026 14:23:11 +0000
+Subject: [PATCH] Fixed arguments not being passed to python scripts
+
+---
+ Utilities/python_runner.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Utilities/python_runner.py b/Utilities/python_runner.py
+index 565a24e97..c252936f6 100755
+--- a/Utilities/python_runner.py
++++ b/Utilities/python_runner.py
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-PYTHONPATH="CASTEP_PYTHON_PATH:$PYTHONPATH" /usr/bin/env python SCRIPT
++PYTHONPATH="CASTEP_PYTHON_PATH:$PYTHONPATH" /usr/bin/env python SCRIPT $@
+-- 
+2.34.1
+

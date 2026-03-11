@@ -38,9 +38,15 @@ class Castep(CMakePackage):
         
     maintainers("byornski")
 
-    # Add  versions here.
-    version("25.11", sha256="3cefc4f8cc218c5b2d24cc9efc65896b2aa2386518c24105124398bc0e6e24b7")
-    version("26.11", sha256="4905591d3ea1bd6ec622bf9e5f64eae310f03466e54bf564eb34ec5fa2f19372")
+    # Versions
+    version("22.11", sha256="aca3fc2207c677561293585a4edaf233676a759c5beb8389cf938411226ef1f5")
+    version("23.1",  sha256="7fba0450d3fd71586c8498ce51975bbdde923759ab298a656409280c29bf45b5")
+    version("24.1",  sha256="97d77a4f3ce3f5c5b87e812f15a2c2cb23918acd7034c91a872b6d66ea0f7dbb")
+    version("25.11", sha256="af6851a973ef83bbd725f6f33ff7616dd9d589bd75cf74cd106b13c3369167f6")
+    version("25.12", sha256="e21177bfe4cb3f3d098b666c90771e3da2826503b002b8e325e3ca1e230cfc7d")
+    version("26.11", sha256="cd38ec9e87fd92b91fe7910179acad6486ee57935832846959151ec406fb5fb6")
+
+    # Depdencies
 
     depends_on("c", type="build")
     depends_on("fortran", type="build")
@@ -69,10 +75,21 @@ class Castep(CMakePackage):
     variant("DLMG", description="Compile with support for open boundary conditions", default=True)
     variant("quip", description="Compile with support for QUIP interatomic potentials", default=False)
     variant("tools", description="Build Castep Tools", default=True)
-
+    variant("mace", description="Add support for MACE", default=False)
+    
     # Optional dependencies
     depends_on("mpi", when="+mpi")
     depends_on("libquip", when="+quip")
+    depends_on("libmace", when="+mace")
+    
+
+    # Patches
+    patch("Fix-castepconv-strings-with-invalid-escape-character.patch")
+    patch("Fixed-arguments-not-being-passed-to-python-scripts.patch", when="@=26.11")
+    
+    
+
+
 
     def cmake_args(self):
         args = [
@@ -83,6 +100,7 @@ class Castep(CMakePackage):
             self.define_from_variant("WITH_GRIMMED3", "GrimmeD3"),
             self.define_from_variant("WITH_GRIMMED4", "GrimmeD4"),
             self.define_from_variant("WITH_DLMG", "DLMG"),
+            self.define_from_variant("WITH_MACE", "mace"),
         ]
         return args
 
