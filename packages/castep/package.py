@@ -47,10 +47,14 @@ class Castep(CMakePackage):
     version("26.11", sha256="cd38ec9e87fd92b91fe7910179acad6486ee57935832846959151ec406fb5fb6")
 
     # Depdencies
+    generator("ninja","make", default="make")
+    depends_on("gmake@4.2:", type="build", when="generator=make")
+    depends_on("ninja", type="build", when="generator=ninja")
+    depends_on("cmake@3.27.9:", type="build", when="generator=ninja")
 
     depends_on("c", type="build")
     depends_on("fortran", type="build")
-    depends_on("awk", type="build")
+    depends_on("awk@3:", type="build")
 
     # Perl for analysis scripts (dos.pl, dispersion.pl)
     depends_on("perl")
@@ -67,39 +71,41 @@ class Castep(CMakePackage):
     depends_on("fftw-api@3")
 
     # List of the main variant options
+    variant('build_type', default='fast',
+            description='CASTEP build type',
+            values=('debug', 'intermediate', 'fast'))
+
+
     variant("mpi", description="Build with MPI parallelism", default=True)
-    variant("libXC", description="Build with libXC support", default=False)
-    variant("OpenMP", description="Use OpenMP threading", default=True)
-    variant("GrimmeD3", description="Compile with support for Grimme D3 dispersion scheme", default=True)
-    variant("GrimmeD4", description="Compile with support for Grimme D4 dispersion scheme", default=True)
-    variant("DLMG", description="Compile with support for open boundary conditions", default=True)
+    variant("libxc", description="Build with libXC support", default=False)
+    variant("openmp", description="Use OpenMP threading", default=True)
+    variant("grimmed3", description="Compile with support for Grimme D3 dispersion scheme", default=True)
+    variant("grimmed4", description="Compile with support for Grimme D4 dispersion scheme", default=True)
+    variant("dlmg", description="Compile with support for open boundary conditions", default=True)
     variant("quip", description="Compile with support for QUIP interatomic potentials", default=False)
     variant("tools", description="Build Castep Tools", default=True)
     variant("mace", description="Add support for MACE", default=False)
     
     # Optional dependencies
     depends_on("mpi", when="+mpi")
-    depends_on("libquip", when="+quip")
+    depends_on("libquip +mpi", when="+quip +mpi")
+    depends_on("libquip ~mpi", when="+quip ~mpi")
     depends_on("libmace", when="+mace")
-    
 
     # Patches
     patch("Fix-castepconv-strings-with-invalid-escape-character.patch")
     patch("Fixed-arguments-not-being-passed-to-python-scripts.patch", when="@=26.11")
     
     
-
-
-
     def cmake_args(self):
         args = [
-            "-DBUILD=fast",
+            '-DBUILD={0}'.format(self.spec.variants['build_type'].value),
             self.define_from_variant("WITH_MPI", "mpi"),
-            self.define_from_variant("WITH_LIBXC", "libXC"),
-            self.define_from_variant("WITH_OpenMP", "OpenMP"),
-            self.define_from_variant("WITH_GRIMMED3", "GrimmeD3"),
-            self.define_from_variant("WITH_GRIMMED4", "GrimmeD4"),
-            self.define_from_variant("WITH_DLMG", "DLMG"),
+            self.define_from_variant("WITH_LIBXC", "libxc"),
+            self.define_from_variant("WITH_OpenMP", "openmp"),
+            self.define_from_variant("WITH_GRIMMED3", "grimmed3"),
+            self.define_from_variant("WITH_GRIMMED4", "grimmed4"),
+            self.define_from_variant("WITH_DLMG", "dlmg"),
             self.define_from_variant("WITH_MACE", "mace"),
         ]
         return args
@@ -107,4 +113,3 @@ class Castep(CMakePackage):
     # Not implemented
     # Make
     # FOXCML
-    # QUIP
